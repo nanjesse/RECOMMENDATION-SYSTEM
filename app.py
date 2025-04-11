@@ -7,13 +7,13 @@ import sklearn
 import pickle
 
 
-# ========== Logging Setup ==========
+
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(levelname)s - %(message)s',
     handlers=[
         logging.FileHandler("api_requests.log"),
-        logging.StreamHandler()  # Optional: also print logs to console
+        logging.StreamHandler() 
     ]
 )
 
@@ -75,9 +75,9 @@ def predict():
 
     return render_template('index.html', result=result)
 
-# ========== Run App ==========
+
 if __name__ == "__main__":
     import sys
-    print(sys.executable)  # Optional: see the path of your Python interpreter
+    print(sys.executable)  
     app.run(debug=True)
 

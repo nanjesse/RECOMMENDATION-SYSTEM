@@ -31,49 +31,53 @@ def index():
 
 @app.route("/predict", methods=['POST'])
 def predict():
-    # Extract form values
-    N = request.form['Nitrogen']
-    P = request.form['Phosporus']
-    K = request.form['Potassium']
-    temp = request.form['Temperature']
-    humidity = request.form['Humidity']
-    ph = request.form['Ph']
-    rainfall = request.form['Rainfall']
+    try:
+        # Extract form values
+        N = request.form['Nitrogen']
+        P = request.form['Phosporus']
+        K = request.form['Potassium']
+        temp = request.form['Temperature']
+        humidity = request.form['Humidity']
+        ph = request.form['Ph']
+        rainfall = request.form['Rainfall']
 
-    # Build feature list
-    feature_list = [N, P, K, temp, humidity, ph, rainfall]
+        # Build feature list
+        feature_list = [N, P, K, temp, humidity, ph, rainfall]
 
-    # Log request
-    logging.info(f"Received Input: {feature_list} from IP: {request.remote_addr}")
+        # Log request
+        logging.info(f"Received Input: {feature_list} from IP: {request.remote_addr}")
 
-    # Convert inputs to floats and reshape
-    single_pred = np.array(feature_list, dtype=float).reshape(1, -1)
+        # Convert inputs to floats and reshape
+        single_pred = np.array(feature_list, dtype=float).reshape(1, -1)
 
-    # Transform features
-    scaled_features = ms.transform(single_pred)
-    final_features = sc.transform(scaled_features)
+        # Transform features
+        scaled_features = ms.transform(single_pred)
+        final_features = sc.transform(scaled_features)
 
-    # Make prediction
-    prediction = model.predict(final_features)
+        # Make prediction
+        prediction = model.predict(final_features)
 
-    # Crop mapping
-    crop_dict = {
-        1: "Rice", 2: "Maize", 3: "Jute", 4: "Cotton", 5: "Coconut", 6: "Papaya", 7: "Orange",
-        8: "Apple", 9: "Muskmelon", 10: "Watermelon", 11: "Grapes", 12: "Mango", 13: "Banana",
-        14: "Pomegranate", 15: "Lentil", 16: "Blackgram", 17: "Mungbean", 18: "Mothbeans",
-        19: "Pigeonpeas", 20: "Kidneybeans", 21: "Chickpea", 22: "Coffee"
-    }
+        # Crop mapping
+        crop_dict = {
+            1: "Rice", 2: "Maize", 3: "Jute", 4: "Cotton", 5: "Coconut", 6: "Papaya", 7: "Orange",
+            8: "Apple", 9: "Muskmelon", 10: "Watermelon", 11: "Grapes", 12: "Mango", 13: "Banana",
+            14: "Pomegranate", 15: "Lentil", 16: "Blackgram", 17: "Mungbean", 18: "Mothbeans",
+            19: "Pigeonpeas", 20: "Kidneybeans", 21: "Chickpea", 22: "Coffee"
+        }
 
-    if prediction[0] in crop_dict:
-        crop = crop_dict[prediction[0]]
-        result = f"{crop} is the best crop to be cultivated right there"
-    else:
-        result = "Sorry, we could not determine the best crop to be cultivated with the provided data."
+        if prediction[0] in crop_dict:
+            crop = crop_dict[prediction[0]]
+            result = f"{crop} is the best crop to be cultivated right there"
+        else:
+            result = "Sorry, we could not determine the best crop to be cultivated with the provided data."
 
-    # Log response
-    logging.info(f"Prediction Output: {result}")
+        # Log response
+        logging.info(f"Prediction Output: {result}")
 
-    return render_template('index.html', result=result)
+        return render_template('index.html', result=result)
+    except Exception as e:
+        logging.error(f"Error during prediction: {e}")
+        return render_template('index.html', result="An error occurred during prediction. Please try again.")
 
 
 if __name__ == "__main__":
